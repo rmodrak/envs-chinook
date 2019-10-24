@@ -1,0 +1,32 @@
+#!/bin/bash -e
+
+if [ "${BASH_SOURCE[0]}" == "${0}" ];
+then
+    echo ""
+    echo "This script is not being sourced"
+    echo ""
+    exit 1
+fi
+
+
+if [[ $HOSTNAME != chinook* ]];
+then
+    echo ""
+    echo "This script works only on chinook*.alaska.edu"
+    echo ""
+    return 1
+fi
+
+
+# load ifort/openmpi
+module load /home/ctape/intel-modules/intel-2016
+
+
+# load python
+module load lang/Python/2.7.12-pic-intel-2016b
+
+
+# activate virutal environment
+source $HOME/virtual/activate-obspy2
+
+

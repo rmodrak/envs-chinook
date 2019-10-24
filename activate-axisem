@@ -1,0 +1,47 @@
+#!/bin/bash -e
+
+if [ "${BASH_SOURCE[0]}" == "${0}" ];
+then
+    echo ""
+    echo "This script is not being sourced"
+    echo ""
+    exit 1
+fi
+
+
+if [[ $HOSTNAME != chinook* ]];
+then
+    echo ""
+    echo "This script works only on chinook*.alaska.edu"
+    echo ""
+    return 1
+fi
+
+
+# load dependencies
+
+module load data/netCDF-Fortran/4.4.4-foss-2016b
+
+
+# adjust to match chinook/install-axisem location
+VENV="$HOME/virtual/axisem"
+
+
+if [ -e $VENV ]
+then
+    echo "Environment found: $VENV"
+else
+    echo ""
+    echo "Environment not found: $VENV"
+    echo ""
+    return 1
+fi
+
+
+# load dependencies
+module load lang/Python/3.5.2-pic-intel-2016b
+
+
+# activate environment
+source $VENV/bin/activate
+

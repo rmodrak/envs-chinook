@@ -1,0 +1,101 @@
+Below, I have copied and pasted the text of an email. 
+From time to time, I may make revisions.
+See github.com/rmodrak/envs/chinook for history.
+
+
+---------- Forwarded message ---------
+From: Ryan Modrak <rmodrak@gmail.com>
+Date: Thu, Jun 6, 2019 at 10:38 AM
+Subject: running AxiSEM on chinook
+To: <UAF-mt@alaska.edu>
+
+
+Hi all,
+
+AxiSEM is a wave-equation solver that generates synthetics from radially-symmetric Earth models. Among other things, it is useful for creating Green’s function databases for moment tensor inversions.
+
+I succeeded in running AxiSEM on chinook, but the procedure was not straightforward.  I will describe the steps I followed below in case anyone is interested.
+
+-Ryan
+
+
+
+### main points
+
+The key to compiling AxiSEM on chinook was to load a particular NetCDF module and add a particular compiler flag to the package's make macros.  (There are eight NetCDF modules available on chinook, and only one of them seems to work, and only after manually adjusting compiler flags.)
+
+After compilation, there are sometimes NetCDF runtime errors when AxiSEM is run in parallel with nproc > 4.  I’ve never encountered these errors with nproc <= 4, which may still be adequate for our use cases. 
+
+Because AxiSEM requires a lot of memory and chinook has fat nodes, we probably want to be running it on chinook, even if we are using only 2 or 4 CPU cores per simulation.
+
+
+
+### step-by-step instructions for compiling AxiSEM on chinook
+
+
+1. load toolchain
+
+>>> module load data/netCDF-Fortran/4.4.4-foss-2016b
+
+
+2. download source code
+
+>>> git clone https://github.com/geodynamics/axisem.git
+>>> cd axisem
+
+
+3. run configuration script
+>>> ./copytemplates.sh
+
+
+4. adjust library paths in make_axisem.macros
+NETCDF_PATH = /usr/local/pkg/data/netCDF-Fortran/4.4.4-foss-2016b
+
+
+5. adjust compiler settings in make_axisem.macros  
+
+On chinook you must use gfortran, which also happens to be the default in make_axisem.macros. 
+
+If you are compiling for the first time or debugging changes to the AxiSEM source code:
+CC      = gcc
+FC      = mpif90
+FFLAGS  = -g -fbacktrace -fbounds-check -frange-check -pedantic
+CFLAGS  = -g -fbacktrace -Wall
+LDFLAGS = -g -fbacktrace -Wall -pthread
+
+Otherwise:
+CC      = gcc
+FC      = mpif90
+FFLAGS  = -O3 -march=native -fopenmp
+FLAGS  = -O3 -march=native
+LDFLAGS = -O3 -march=native -fopenmp
+
+
+6. compile the code
+>>> make
+
+
+### NOTES
+
+A. AxiSEM includes several scripts with the filename submit.csh, which set up a working directory and invoke the mesher or solver executables.  These scripts are a bit idiosyncratic, and it is necessary to modify them to match your preferred way of working on chinook.  Based on a user-supplied argument “-q”, SOLVER/submit.csh attempts to submit jobs on HPC systems, but this part is not very portable, and “submit -q slurm” fails on chinook.  If the “-q” argument is omitted, SOLVER/submit.csh runs the executable as a background process, which seems unexpected.  The modified SOLVER/submit.csh script that I used on chinook is included as an attachement.
+
+B. The spatial discretization and memory requirements for AxiSEM simulations depend on the DOMINANT_PERIOD parameter in MESHER/inparam_mesh.  Shorter periods result in finer discretizations and larger memory requirements.  In general, the mesher runs much faster than the solver but requires more memory.  On the chinook login nodes, xmesh runs successfully with DOMINANT_PERIOD = 2 s, but fails with DOMINANT_PERIOD = 1 s.
+
+C. AxiSEM can be used to simulate seismograms or Green's functions. For Green's functions, be sure use "force" for SIMULATION_TYPE in SOLVER/inparam_basic.  NetCDF libraries are required to produce Green’s functions in a format readable by instaseis.  Without this requirement, the compilation procedure described above would have been simpler and less error prone. Problems with the system NetCDF library configuration are possibly at the root of the runtime errors described above and the postprocessing errors described below.
+
+D. The parameter LOCAL_MAX_COLAT in MESHER/inparm_mesh restricts the size of the simulation domain.  The parameter SEISMOGRAM_LENGTH in SOLVER/inparam_basic controls the length of the simluation. Although AxiSEM finishes without runtime errors when LOCAL_MAX_COLAT is uncommented, instaseis fails unfortunately when reading the resulting NetCDF files.
+
+E. Once AxiSEM finishes running and Green's function NetCDF files have been created, additional processing is needed to make them readable by instaseis.  This processing can take a very long time.  Adjusting the cache in buffer sizes in the postprocessing script chould reduce the chunking time in theory, but in practice I was unable to realize any significant speedup.
+
+F. The AxiSEM manual describes two options for processing NetCDF files: a shell script "field_transform.sh" and a Python script "field_transform.py".  Currently, shell script runs without errors but instaseis is unable to read the resulting "ordered_output.nc4" files.  The Python script runs successfully and instaseis is able to read the resulting files, but the runtimes are extremely slow!  (See https://github.com/geodynamics/axisem/issues/58 for more details.)  Further, note that the environment needed to compile AxiSEM differs from the environment needed to run the Python script!  On chinook, AxiSEM only runs successfully under the foss toolchain, and the Python script only runs successfully under the pic-intel toolchain.  On chinook, something like the following may be needed to create an environment is in which "field_transform.py" can run:
+
+>>> module purge
+>>> module load slurm
+>>> module load lang/Python/2.7.12-pic-intel-2016b
+>>> virtualenv env
+>>> source env/bin/activate
+>>> pip install netcdf4
+
+
+
+

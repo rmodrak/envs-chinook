@@ -1,0 +1,44 @@
+#!/bin/bash -e
+
+if [ "${BASH_SOURCE[0]}" == "${0}" ];
+then
+    echo ""
+    echo "This script is not being sourced"
+    echo ""
+    exit 1
+fi
+
+
+if [[ $HOSTNAME != chinook* ]];
+then
+    echo ""
+    echo "This script works only on chinook*.alaska.edu"
+    echo ""
+    return 1
+fi
+
+
+# adjust to match install.bash location
+VENV="$HOME/virtual/asdf"
+
+
+if [ -e $VENV ]
+then
+    echo "Environment found: $VENV"
+else
+    echo ""
+    echo "Environment not found: $VENV"
+    echo ""
+    return 1
+fi
+
+
+# load dependencies
+module load lang/Python/2.7.12-pic-intel-2016b
+export LD_LIBRARY_PATH=${LD_LIBRARY_PATH:+${LD_LIBRARY_PATH}:}"$HOME/opt/hdf5/lib"
+
+
+# activate virutal environment
+source $VENV/bin/activate
+
+
