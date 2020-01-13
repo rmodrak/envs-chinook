@@ -18,13 +18,8 @@ then
 fi
 
 
-# load dependencies
-
-module load data/netCDF-Fortran/4.4.4-foss-2016b
-
-
-# adjust to match chinook/install-axisem location
-VENV="$HOME/virtual/axisem"
+# adjust to match virtual environment location
+VENV="$HOME/virtual/instaseis2"
 
 
 if [ -e $VENV ]
@@ -39,9 +34,10 @@ fi
 
 
 # load dependencies
-module load lang/Python/3.5.2-pic-intel-2016b
+module load lang/Python/2.7.12-pic-intel-2016b
 
 
 # activate environment
 source $VENV/bin/activate
+
 

@@ -1,0 +1,22 @@
+#!/bin/bash -e
+
+# INSTALLS INSTASEIS ON CHINOOK
+
+
+VENV="$HOME/virtual/instaseis2"
+if [ -e $VENV ]; then
+    echo
+    echo "Directory exists: $VENV"
+    echo
+    exit 1
+fi
+
+# create and activate virtual environment
+module load lang/Python/2.7.12-pic-intel-2016b
+virtualenv $VENV
+source "$VENV/bin/activate"
+
+# install instaseis
+pip install numpy
+pip install instaseis
+

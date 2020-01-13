@@ -1,9 +1,9 @@
 #!/bin/bash -e
 
-# INSTALLS OBSPY ON CHINOOK
+# INSTALLS INSTASEIS ON CHINOOK
 
 
-VENV="$HOME/virtual/axisem"
+VENV="$HOME/virtual/instaseis3"
 if [ -e $VENV ]; then
     echo
     echo "Directory exists: $VENV"
@@ -12,11 +12,11 @@ if [ -e $VENV ]; then
 fi
 
 # create and activate virtual environment
-module load lang/Python/3.5.2-foss-2016b
+module load lang/Python/3.5.2-pic-intel-2016b
 virtualenv $VENV
 source "$VENV/bin/activate"
 
-pip install numpy
-pip install obspy
-pip install netcdf4
+
+pip install numpy 
+pip install instaseis
 
