@@ -1,20 +1,9 @@
-Below, I have copied and pasted the text of an email. 
-From time to time, I may make revisions.
-See github.com/rmodrak/envs/chinook for history.
-
-
----------- Forwarded message ---------
-From: Ryan Modrak <rmodrak@gmail.com>
-Date: Thu, Jun 6, 2019 at 10:38 AM
-Subject: running AxiSEM on chinook
-To: <UAF-mt@alaska.edu>
-
 
 Hi all,
 
 AxiSEM is a wave-equation solver that generates synthetics from radially-symmetric Earth models. Among other things, it is useful for creating Green’s function databases for moment tensor inversions.
 
-I succeeded in running AxiSEM on chinook, but the procedure was not straightforward.  I will describe the steps I followed below in case anyone is interested.
+Getting AxiSEM to run on chinook was not totally straightforward. The steps I used are described below in case anyone is interested.
 
 -Ryan
 
