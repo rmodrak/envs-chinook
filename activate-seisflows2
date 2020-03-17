@@ -1,0 +1,26 @@
+#!/bin/bash -e
+
+if [ "${BASH_SOURCE[0]}" == "${0}" ];
+then
+    echo ""
+    echo "This script is not being sourced"
+    echo ""
+    exit 1
+fi
+
+
+if [[ $HOSTNAME != chinook* ]];
+then
+    echo ""
+    echo "This script works only on chinook*.alaska.edu"
+    echo ""
+    return 1
+fi
+
+# load dependencies
+module load lang/Python/2.7.12-pic-intel-2016b
+
+
+append-path "$HOME/packages/seisflows/scripts"
+append-pythonpath "$HOME/packages/seisflows"
+

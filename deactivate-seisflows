@@ -1,0 +1,35 @@
+#!/bin/bash -e
+
+
+if [ "${BASH_SOURCE[0]}" == "${0}" ];
+then
+    echo ""
+    echo "This script is not being sourced"
+    echo ""
+    exit 1 
+fi
+
+
+if [[ $HOSTNAME != chinook* ]];
+then
+    echo ""
+    echo "This script works only on chinook*.alaska.edu"
+    echo ""
+    return 1 
+fi
+
+
+# adjust path
+function adjust-path {
+    export PATH=$(\echo ${PATH} |\
+    awk -v RS=: -v ORS=: '/seisflows/ {next} {print}' |\
+    sed 's/:*$//')
+}
+
+
+# adjust python path
+export PYTHONPATH=$(\echo ${PYTHONPATH} |\
+awk -v RS=: -v ORS=: '/seisflows/ {next} {print}' |\
+sed 's/:*$//')
+
+
